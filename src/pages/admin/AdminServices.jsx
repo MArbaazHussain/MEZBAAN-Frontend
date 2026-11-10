@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const empty = {
   title: '', description: '', categoryId: '', businessId: '', basePrice: '', pricingUnit: 'fixed_package',
-  minCapacity: 1, maxCapacity: '', eventTypes: [], imageUrl: '', isPublished: true
+  minCapacity: 1, maxCapacity: '', eventTypes: [], imageUrl: '', imagesText: '', isPublished: true
 };
 
 // Service Catalog Management - Admin / Staff (CRUD)
@@ -43,7 +43,7 @@ export default function AdminServices() {
       title: s.title, description: s.description || '', categoryId: s.categoryId?._id || '',
       businessId: s.businessId?._id || '', basePrice: s.basePrice, pricingUnit: s.pricingUnit,
       minCapacity: s.minCapacity ?? 1, maxCapacity: s.maxCapacity ?? '', eventTypes: s.eventTypes || [],
-      imageUrl: s.imageUrl || '', isPublished: s.isPublished !== false
+      imageUrl: s.imageUrl || '', imagesText: (s.images || []).join('\n'), isPublished: s.isPublished !== false
     });
     setEditingId(s._id);
     setShowForm(true);
@@ -59,8 +59,11 @@ export default function AdminServices() {
     }
     if (Number(form.basePrice) < 0) return setMsg({ type: 'error', text: 'Price cannot be negative.' });
 
+    const { imagesText, ...rest } = form;
     const body = {
-      ...form,
+      ...rest,
+      imageUrl: rest.imageUrl.trim() || undefined,
+      images: imagesText.split('\n').map((u) => u.trim()).filter(Boolean),
       basePrice: Number(form.basePrice),
       minCapacity: Number(form.minCapacity) || 1,
       maxCapacity: form.maxCapacity === '' ? undefined : Number(form.maxCapacity),
@@ -122,6 +125,9 @@ export default function AdminServices() {
             <label>Image URL<input value={form.imageUrl} onChange={set('imageUrl')} placeholder="https://..." /></label>
           </div>
           <label>Description<textarea rows="3" value={form.description} onChange={set('description')} /></label>
+          <label>Gallery images (one link per line, up to 12)
+            <textarea rows="3" value={form.imagesText} onChange={set('imagesText')} placeholder="https://..." />
+          </label>
           <div className="row-3">
             <label>Category *
               <select value={form.categoryId} onChange={set('categoryId')}>

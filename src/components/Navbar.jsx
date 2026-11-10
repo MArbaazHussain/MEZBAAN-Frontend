@@ -48,6 +48,7 @@ export default function Navbar() {
           {user?.role === 'Customer' && <NavLink to="/my-packages" onClick={close}>Saved Packages</NavLink>}
           {isStaff && <NavLink to="/admin/services" onClick={close}>Manage Services</NavLink>}
           {isStaff && <NavLink to="/admin/availability" onClick={close}>Availability</NavLink>}
+          {isStaff && <NavLink to="/admin/inquiries" onClick={close}>Inquiries</NavLink>}
           {user?.role === 'Admin' && <NavLink to="/admin/users" onClick={close}>Users</NavLink>}
 
           {user ? (

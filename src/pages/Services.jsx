@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { api, toQuery, EVENT_TYPES, UNIT_LABEL } from '../api';
 import ServiceCard from '../components/ServiceCard';
 
-const FILTER_KEYS = ['search', 'categoryId', 'businessId', 'minPrice', 'maxPrice', 'pricingUnit', 'eventType', 'guests', 'date', 'sort'];
+const FILTER_KEYS = ['search', 'categoryId', 'businessId', 'minPrice', 'maxPrice', 'pricingUnit', 'eventType', 'guests', 'date', 'minRating', 'sort'];
 
 // Global Search + Advanced Filters (SRS 4.2, 4.3)
 export default function Services() {
@@ -40,6 +40,10 @@ export default function Services() {
       setError('Minimum price cannot be greater than maximum price.');
       return;
     }
+    if (form.date && form.date < new Date().toISOString().slice(0, 10)) {
+      setError('Date cannot be in the past.');
+      return;
+    }
     const next = {};
     Object.entries(form).forEach(([k, v]) => { if (String(v).trim()) next[k] = v; });
     setParams(next);
@@ -60,6 +64,7 @@ export default function Services() {
     if (k === 'guests') return `${v} guests`;
     if (k === 'search') return `"${v}"`;
     if (k === 'date') return `Free on ${v}`;
+    if (k === 'minRating') return `★ ${v}+`;
     return v;
   };
 
@@ -107,6 +112,15 @@ export default function Services() {
           </label>
           <label>Guests<input type="number" min="1" value={form.guests} onChange={set('guests')} /></label>
           <label>Available on date<input type="date" min={today} value={form.date} onChange={set('date')} /></label>
+          <label>Rating
+            <select value={form.minRating} onChange={set('minRating')}>
+              <option value="">Any</option>
+              <option value="4">4 stars and up</option>
+              <option value="3">3 stars and up</option>
+              <option value="2">2 stars and up</option>
+            </select>
+            <span className="muted small" style={{ fontWeight: 400 }}>Services without ratings are hidden when this is used.</span>
+          </label>
           <button className="btn btn-dark btn-block">Apply filters</button>
           {active.length > 0 && <button type="button" className="btn-link btn-block" onClick={() => setParams({})}>Clear all</button>}
         </form>
@@ -120,6 +134,7 @@ export default function Services() {
             <option value="price_asc">Price: Low to high</option>
             <option value="price_desc">Price: High to low</option>
             <option value="name">Name: A–Z</option>
+            <option value="rating">Rating: High to low</option>
           </select>
         </div>
 
@@ -133,7 +148,11 @@ export default function Services() {
 
         {error && <div className="alert alert-error">{error}</div>}
         {!loading && !error && services.length === 0 && (
-          <div className="card center"><h3>No services found</h3><p className="muted">Try a different keyword or remove some filters.</p></div>
+          <div className="card center">
+            <h3>{active.some((k) => k !== 'search') ? 'No services match these filters' : 'No services found'}</h3>
+            <p className="muted">Try a different keyword, change the filters, or browse by category.</p>
+            {active.length > 0 && <button className="btn btn-outline btn-sm" onClick={() => setParams({})}>Clear all filters</button>}
+          </div>
         )}
         <div className="service-grid">
           {services.map((s) => <ServiceCard key={s._id} service={s} />)}

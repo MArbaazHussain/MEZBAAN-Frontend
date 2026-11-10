@@ -32,12 +32,8 @@ export function AuthProvider({ children }) {
     return d.user;
   };
 
-  const register = async (form) => {
-    const d = await api('/auth/register', { method: 'POST', body: form });
-    localStorage.setItem('mezbaan_token', d.token);
-    saveUser(d.user);
-    return d.user;
-  };
+  // Register ke baad login nahi hota: pehle email verify karni hai (REQ-1.5)
+  const register = async (form) => api('/auth/register', { method: 'POST', body: form });
 
   const logout = () => {
     localStorage.removeItem('mezbaan_token');

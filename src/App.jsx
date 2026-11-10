@@ -13,6 +13,9 @@ import AdminServices from './pages/admin/AdminServices';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminAvailability from './pages/admin/AdminAvailability';
 import NotFound from './pages/NotFound';
+import VerifyEmail from './pages/VerifyEmail';
+import BusinessProfile from './pages/BusinessProfile';
+import AdminInquiries from './pages/admin/AdminInquiries';
 
 export default function App() {
   return (
@@ -24,6 +27,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/businesses/:id" element={<BusinessProfile />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/:id" element={<ServiceDetail />} />
           <Route path="/package-builder" element={<PackageBuilder />} />
@@ -35,6 +40,7 @@ export default function App() {
           {/* Admin / Staff */}
           <Route path="/admin/services" element={<ProtectedRoute roles={['Admin', 'Staff']}><AdminServices /></ProtectedRoute>} />
           <Route path="/admin/availability" element={<ProtectedRoute roles={['Admin', 'Staff']}><AdminAvailability /></ProtectedRoute>} />
+          <Route path="/admin/inquiries" element={<ProtectedRoute roles={['Admin', 'Staff']}><AdminInquiries /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute roles={['Admin']}><AdminUsers /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFound />} />

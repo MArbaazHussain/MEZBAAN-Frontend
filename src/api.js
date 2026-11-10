@@ -17,12 +17,13 @@ export async function api(path, { method = 'GET', body, auth } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined
     });
   } catch {
-    throw new Error('Server se connection nahi ho saka. Kya backend (npm run dev) chal raha hai?');
+    throw new Error('System temporarily unavailable. Please try again later.');
   }
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const err = new Error(data.message || `Request failed (${res.status})`);
+    const fallback = res.status >= 500 ? 'System temporarily unavailable. Please try again later.' : `Request failed (${res.status})`;
+    const err = new Error(data.message || fallback);
     err.status = res.status;
     err.data = data;
     throw err;

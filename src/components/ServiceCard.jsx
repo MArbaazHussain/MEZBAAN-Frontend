@@ -25,10 +25,11 @@ export default function ServiceCard({ service }) {
       <div className="service-body">
         <div className="tags">
           <span className="tag">{category}</span>
-          {service.businessId?.businessName && <span className="tag tag-light">{service.businessId.businessName}</span>}
+          {service.businessId?.businessName && <Link to={`/businesses/${service.businessId._id}`} className="tag tag-light">{service.businessId.businessName}</Link>}
         </div>
         <h3><Link to={`/services/${service._id}`}>{service.title}</Link></h3>
         <p className="muted clamp">{service.description}</p>
+        <p className="rating small">{service.averageRating ? `★ ${service.averageRating.toFixed(1)} (${service.ratingCount})` : <span className="muted">No ratings yet</span>}</p>
         <div className="service-foot">
           <div>
             <strong className="price">{formatPKR(service.basePrice)}</strong>

@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { api, formatPKR, UNIT_LABEL } from '../api';
 import { usePackage } from '../context/PackageContext';
 import { useAuth } from '../context/AuthContext';
+import Gallery from '../components/Gallery';
+import InquiryForm from '../components/InquiryForm';
 
 export default function ServiceDetail() {
   const { id } = useParams();
@@ -43,6 +45,7 @@ export default function ServiceDetail() {
             {service.businessId?.businessName && <span className="tag tag-light">{service.businessId.businessName}</span>}
           </div>
           <h1>{service.title}</h1>
+          <Gallery images={[service.imageUrl, ...(service.images || [])].filter(Boolean).map((url) => ({ url, title: service.title }))} />
           <p>{service.description}</p>
           <ul className="facts">
             <li><span>Price</span><strong>{formatPKR(service.basePrice)} {UNIT_LABEL[service.pricingUnit]}</strong></li>
@@ -50,7 +53,7 @@ export default function ServiceDetail() {
               <li><span>Guests</span><strong>{service.minCapacity || 1} – {service.maxCapacity || 'any'}</strong></li>
             )}
             {service.eventTypes?.length > 0 && <li><span>Suitable for</span><strong>{service.eventTypes.join(', ')}</strong></li>}
-            {service.businessId?.contactPhone && <li><span>Contact</span><strong>{service.businessId.contactPhone}</strong></li>}
+            <li><span>Rating</span><strong>{service.averageRating ? `★ ${service.averageRating.toFixed(1)} (${service.ratingCount})` : 'No ratings yet'}</strong></li>
           </ul>
           {canBuild && (
             has(service._id)
@@ -69,8 +72,25 @@ export default function ServiceDetail() {
             </div>
           )}
           <p className="muted small">Available result is not a reservation. Date is confirmed after booking approval.</p>
+
+          {service.businessId && (
+            <>
+              <hr />
+              <h3>Provider</h3>
+              <p><strong>{service.businessId.businessName}</strong></p>
+              {service.businessId.contactPhone && <p className="small">Phone: <a href={`tel:${service.businessId.contactPhone}`}>{service.businessId.contactPhone}</a></p>}
+              {service.businessId.contactEmail && <p className="small">Email: <a href={`mailto:${service.businessId.contactEmail}`}>{service.businessId.contactEmail}</a></p>}
+              <Link to={`/businesses/${service.businessId._id}`} className="btn btn-outline btn-block">View provider profile</Link>
+            </>
+          )}
         </div>
       </div>
+
+      {service.businessId && (
+        <section className="section card">
+          <InquiryForm businessId={service.businessId._id} listingId={service._id} providerName={service.businessId.businessName} />
+        </section>
+      )}
     </div>
   );
 }
